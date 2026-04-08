@@ -2,10 +2,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-/**
- * Environment configuration
- * Centralizes all environment variables with defaults
- */
 export const env = {
   server: {
     port: Number(process.env.PORT) || 3000,

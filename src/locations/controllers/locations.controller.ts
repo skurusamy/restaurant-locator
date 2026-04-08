@@ -20,7 +20,7 @@ export class LocationsController {
   ) {
     const { x, y, page = 1, limit = 10 } = request.query;
 
-    const result = await this.locationsService.searchLocations(
+    const result = await this.locationsService.searchByDistance(
       Number(x),
       Number(y),
       Number(page),
@@ -45,6 +45,7 @@ export class LocationsController {
 
     if (!location) {
       return reply.status(404).send({
+        errorType: 'Not Found',
         message: 'Location not found.',
       });
     }

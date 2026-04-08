@@ -1,4 +1,8 @@
-import { errorResponseSchema } from '../common/schemas/error.schema';
+import {
+  badRequestResponseSchema,
+  internalServerErrorResponseSchema,
+  notFoundResponseSchema,
+} from '../common/schemas/error.schema';
 
 export const searchLocationsSchema = {
   summary: 'Search visible restaurant locations',
@@ -80,26 +84,8 @@ export const searchLocationsSchema = {
       },
       required: ['user-location', 'locations', 'page', 'limit', 'total'],
     },
-    400: {
-      ...errorResponseSchema,
-      properties: {
-        ...errorResponseSchema.properties,
-        errorType: {
-          type: 'string',
-          example: 'Bad Request',
-        },
-      },
-    },
-    500: {
-      ...errorResponseSchema,
-      properties: {
-        ...errorResponseSchema.properties,
-        errorType: {
-          type: 'string',
-          example: 'Internal Server Error',
-        },
-      },
-    },
+    400: badRequestResponseSchema,
+    500: internalServerErrorResponseSchema,
   },
 };
 
@@ -145,35 +131,8 @@ export const getLocationByIdSchema = {
       },
       required: ['id', 'name', 'coordinates'],
     },
-    400: {
-      ...errorResponseSchema,
-      properties: {
-        ...errorResponseSchema.properties,
-        errorType: {
-          type: 'string',
-          example: 'Bad Request',
-        },
-      },
-    },
-    404: {
-      ...errorResponseSchema,
-      properties: {
-        ...errorResponseSchema.properties,
-        errorType: {
-          type: 'string',
-          example: 'Not Found',
-        },
-      },
-    },
-    500: {
-      ...errorResponseSchema,
-      properties: {
-        ...errorResponseSchema.properties,
-        errorType: {
-          type: 'string',
-          example: 'Internal Server Error',
-        },
-      },
-    },
+    400: badRequestResponseSchema,
+    404: notFoundResponseSchema,
+    500: internalServerErrorResponseSchema,
   },
 };

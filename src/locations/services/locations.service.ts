@@ -1,6 +1,5 @@
 import { LocationsRepository } from '../locations.repository';
-import { calculateDistance } from '../../common/utils/distance';
-import { toDetailsResponse, toSearchItem } from '../locations.mapper';
+import { toDetailsResponse } from '../locations.mapper';
 import {
   LocationDetailsResponse,
   LocationSearchResponse,
@@ -12,44 +11,39 @@ export class LocationsService {
   /**
    * Search visible locations from the given user coordinates.
    *
-   * A location is visible if distance(user, location) <= location.radius.
+   * The repository handles:
+   * - DB filtering
+   * - DB sorting
+   * - DB pagination
+   *
+   * The service handles:
+   * - response shaping
    */
-  public async searchLocations(
+  public async searchByDistance(
     userX: number,
     userY: number,
     page = 1,
     limit = 10
   ): Promise<LocationSearchResponse> {
-    // Defensive normalization for pagination
     const safePage = Math.max(page, 1);
     const safeLimit = Math.min(Math.max(limit, 1), 50);
 
-    const locations = await this.locationsRepository.findAll();
-
-    // Calculate distance for each location and keep only visible ones
-    const visibleLocations = locations
-      .map((location) => {
-        const distance = calculateDistance(userX, userY, location.x, location.y);
-
-        return {
-          location,
-          distance,
-        };
-      })
-      .filter(({ location, distance }) => distance <= location.radius)
-      .sort((a, b) => a.distance - b.distance);
-
-    const total = visibleLocations.length;
-    const startIndex = (safePage - 1) * safeLimit;
-    const endIndex = startIndex + safeLimit;
-
-    const paginatedLocations = visibleLocations.slice(startIndex, endIndex);
+    const { rows, total } =
+      await this.locationsRepository.searchByDistance(
+        userX,
+        userY,
+        safePage,
+        safeLimit
+      );
 
     return {
       'user-location': `x=${userX},y=${userY}`,
-      locations: paginatedLocations.map(({ location, distance }) =>
-        toSearchItem(location, distance)
-      ),
+      locations: rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        coordinates: `x=${row.x},y=${row.y}`,
+        distance: Number(row.distance.toFixed(5)),
+      })),
       page: safePage,
       limit: safeLimit,
       total,

@@ -10,8 +10,6 @@ export interface LocationSearchItem {
   name: string;
   coordinates: string;
   distance: number;
-  image?: string;
-  'opening-hours'?: string;
 }
 
 export interface LocationSearchResponse {
