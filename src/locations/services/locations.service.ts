@@ -3,6 +3,7 @@ import { toDetailsResponse } from '../locations.mapper';
 import {
   LocationDetailsResponse,
   LocationSearchResponse,
+  UpsertLocationRequest,
 } from '../locations.types';
 
 export class LocationsService {
@@ -64,4 +65,52 @@ export class LocationsService {
 
     return toDetailsResponse(location);
   }
+
+  public async upsertLocation(
+  pathId: string,
+  payload: UpsertLocationRequest
+): Promise<LocationDetailsResponse> {
+  if (pathId !== payload.id) {
+    throw Object.assign(new Error('Path id must match body id.'), {
+      statusCode: 400,
+    });
+  }
+
+  const parts = payload.coordinates.split(',');
+  if (parts.length !== 2) {
+    throw Object.assign(new Error('Coordinates must be in the format x=<number>,y=<number>.'), {
+      statusCode: 400,
+    });
+  }
+
+  const x = Number(parts[0].split('=')[1]);
+  const y = Number(parts[1].split('=')[1]);
+
+  if (Number.isNaN(x) || Number.isNaN(y) || x < 0 || y < 0) {
+    throw Object.assign(new Error('Coordinates must contain non-negative numeric x and y values.'), {
+      statusCode: 400,
+    });
+  }
+
+  await this.locationsRepository.upsert({
+    id: payload.id,
+    name: payload.name,
+    x,
+    y,
+    radius: payload.radius,
+    type: payload.type,
+    image: payload.image,
+    openingHours: payload['opening-hours'],
+  });
+
+  const savedLocation = await this.locationsRepository.findById(payload.id);
+
+  if (!savedLocation) {
+    throw Object.assign(new Error('Failed to persist location.'), {
+      statusCode: 500,
+    });
+  }
+
+  return toDetailsResponse(savedLocation);
+}
 }

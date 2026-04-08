@@ -339,4 +339,202 @@ it('should return 400 for an invalid location id format', async function () {
 });
 });
 
+describe('PUT /locations/:id', function () {
+ 
+  it('should create a new location', async function () {
+  const payload = {
+    id: '44444444-4444-4444-4444-444444444444',
+    name: 'New Place',
+    type: 'Restaurant',
+    image: 'https://tinyurl.com',
+    'opening-hours': '9:00AM-10:00PM',
+    coordinates: 'x=5,y=6',
+    radius: 4,
+  };
+
+  const response = await app.inject({
+    method: 'PUT',
+    url: '/locations/44444444-4444-4444-4444-444444444444',
+    payload,
+  });
+
+  expect(response.statusCode).to.equal(200);
+
+  const body = response.json();
+
+  expect(body).to.deep.equal({
+    id: '44444444-4444-4444-4444-444444444444',
+    name: 'New Place',
+    type: 'Restaurant',
+    image: 'https://tinyurl.com',
+    coordinates: 'x=5,y=6',
+    'opening-hours': '9:00AM-10:00PM',
+  });
+
+  // Verify it was actually persisted
+  const getResponse = await app.inject({
+    method: 'GET',
+    url: '/locations/44444444-4444-4444-4444-444444444444',
+  });
+
+  expect(getResponse.statusCode).to.equal(200);
+  expect(getResponse.json().name).to.equal('New Place');
+});
+
+it('should update an existing location', async function () {
+  const payload = {
+    id: '11111111-1111-1111-1111-111111111111',
+    name: 'Mantra Restaurant Updated',
+    type: 'Restaurant',
+    image: 'https://tinyurl.com',
+    'opening-hours': '11:00AM-11:00PM',
+    coordinates: 'x=2,y=2',
+    radius: 5,
+  };
+
+  const response = await app.inject({
+    method: 'PUT',
+    url: '/locations/11111111-1111-1111-1111-111111111111',
+    payload,
+  });
+
+  expect(response.statusCode).to.equal(200);
+
+  const body = response.json();
+
+  expect(body).to.deep.equal({
+    id: '11111111-1111-1111-1111-111111111111',
+    name: 'Mantra Restaurant Updated',
+    type: 'Restaurant',
+    image: 'https://tinyurl.com',
+    coordinates: 'x=2,y=2',
+    'opening-hours': '11:00AM-11:00PM',
+  });
+
+  const getResponse = await app.inject({
+    method: 'GET',
+    url: '/locations/11111111-1111-1111-1111-111111111111',
+  });
+
+  expect(getResponse.statusCode).to.equal(200);
+  expect(getResponse.json().name).to.equal('Mantra Restaurant Updated');
+});
+
+it('should return 400 when path id and body id do not match', async function () {
+  const payload = {
+    id: '55555555-5555-5555-5555-555555555555',
+    name: 'Mismatch Place',
+    type: 'Restaurant',
+    image: 'https://tinyurl.com',
+    'opening-hours': '9:00AM-10:00PM',
+    coordinates: 'x=5,y=5',
+    radius: 3,
+  };
+
+  const response = await app.inject({
+    method: 'PUT',
+    url: '/locations/44444444-4444-4444-4444-444444444444',
+    payload,
+  });
+
+  expect(response.statusCode).to.equal(400);
+
+  const body = response.json();
+  expect(body.errorType).to.equal('Bad Request');
+});
+
+it('should return 400 for invalid coordinates format', async function () {
+  const payload = {
+    id: '66666666-6666-6666-6666-666666666666',
+    name: 'Bad Coordinates',
+    type: 'Restaurant',
+    image: 'https://tinyurl.com',
+    'opening-hours': '9:00AM-10:00PM',
+    coordinates: '5,6',
+    radius: 3,
+  };
+
+  const response = await app.inject({
+    method: 'PUT',
+    url: '/locations/66666666-6666-6666-6666-666666666666',
+    payload,
+  });
+
+  expect(response.statusCode).to.equal(400);
+
+  const body = response.json();
+  expect(body.errorType).to.equal('Bad Request');
+});
+
+it('should return 400 for negative coordinates', async function () {
+  const payload = {
+    id: '77777777-7777-7777-7777-777777777777',
+    name: 'Negative Coordinates',
+    type: 'Restaurant',
+    image: 'https://tinyurl.com',
+    'opening-hours': '9:00AM-10:00PM',
+    coordinates: 'x=-1,y=6',
+    radius: 3,
+  };
+
+  const response = await app.inject({
+    method: 'PUT',
+    url: '/locations/77777777-7777-7777-7777-777777777777',
+    payload,
+  });
+
+  expect(response.statusCode).to.equal(400);
+
+  const body = response.json();
+  expect(body.errorType).to.equal('Bad Request');
+});
+
+it('should return 400 for invalid path id format', async function () {
+  const payload = {
+    id: '88888888-8888-8888-8888-888888888888',
+    name: 'Invalid Path UUID',
+    type: 'Restaurant',
+    image: 'https://tinyurl.com',
+    'opening-hours': '9:00AM-10:00PM',
+    coordinates: 'x=5,y=6',
+    radius: 3,
+  };
+
+  const response = await app.inject({
+    method: 'PUT',
+    url: '/locations/123',
+    payload,
+  });
+
+  expect(response.statusCode).to.equal(400);
+
+  const body = response.json();
+  expect(body.errorType).to.equal('Bad Request');
+});
+
+it('should return 400 when radius is 0', async function () {
+  const payload = {
+    id: '99999999-9999-9999-9999-999999999999',
+    name: 'Bad Radius',
+    type: 'Restaurant',
+    image: 'https://tinyurl.com',
+    'opening-hours': '9:00AM-10:00PM',
+    coordinates: 'x=5,y=6',
+    radius: 0,
+  };
+
+  const response = await app.inject({
+    method: 'PUT',
+    url: '/locations/99999999-9999-9999-9999-999999999999',
+    payload,
+  });
+
+  expect(response.statusCode).to.equal(400);
+
+  const body = response.json();
+  expect(body.errorType).to.equal('Bad Request');
+});
+
+});
+
 });

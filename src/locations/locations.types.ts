@@ -28,3 +28,13 @@ export interface LocationDetailsResponse {
   coordinates: string;
   'opening-hours'?: string;
 }
+
+export interface UpsertLocationRequest {
+  id: string;
+  name: string;
+  type?: string;
+  image?: string;
+  'opening-hours'?: string;
+  coordinates: string;
+  radius: number;
+}

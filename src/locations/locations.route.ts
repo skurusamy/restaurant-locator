@@ -5,6 +5,7 @@ import { LocationsRepository } from './locations.repository';
 import {
   searchLocationsSchema,
   getLocationByIdSchema,
+  upsertLocationSchema,
 } from './locations.schema';
 
 export async function locationsRoutes(app: FastifyInstance) {
@@ -27,4 +28,12 @@ export async function locationsRoutes(app: FastifyInstance) {
     },
     controller.getLocationById.bind(controller)
   );
+
+  app.put(
+  '/locations/:id',
+  {
+    schema: upsertLocationSchema,
+  },
+  controller.upsertLocation.bind(controller)
+);
 }

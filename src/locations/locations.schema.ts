@@ -42,8 +42,7 @@ export const searchLocationsSchema = {
       type: 'object',
       properties: {
         'user-location': {
-          type: 'string',
-          example: 'x=3,y=2',
+          type: 'string'
         },
         locations: {
           type: 'array',
@@ -133,6 +132,80 @@ export const getLocationByIdSchema = {
     },
     400: badRequestResponseSchema,
     404: notFoundResponseSchema,
-    500: internalServerErrorResponseSchema,
+    500: internalServerErrorResponseSchema
+  },
+};
+
+export const upsertLocationSchema = {
+  summary: 'Create or update a restaurant location',
+  description: 'Creates a new location if it does not exist, or updates the existing one.',
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: {
+        type: 'string',
+        format: 'uuid',
+        description: 'Location id',
+      },
+    },
+  },
+  body: {
+    type: 'object',
+    required: ['id', 'name', 'coordinates', 'radius'],
+    properties: {
+      id: {
+        type: 'string',
+        format: 'uuid',
+      },
+      name: {
+        type: 'string',
+      },
+      type: {
+        type: 'string',
+      },
+      image: {
+        type: 'string',
+      },
+      'opening-hours': {
+        type: 'string',
+      },
+      coordinates: {
+        type: 'string'
+      },
+      radius: {
+        type: 'integer',
+        minimum: 1,
+      },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          format: 'uuid',
+        },
+        name: {
+          type: 'string',
+        },
+        type: {
+          type: 'string',
+        },
+        image: {
+          type: 'string',
+        },
+        coordinates: {
+          type: 'string'
+        },
+        'opening-hours': {
+          type: 'string',
+        },
+      },
+      required: ['id', 'name', 'coordinates'],
+    },
+    400: badRequestResponseSchema,
+    500: internalServerErrorResponseSchema
   },
 };

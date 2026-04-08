@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { LocationsService } from '../services/locations.service';
-import { SearchLocationsQuery } from '../locations.types';
+import { SearchLocationsQuery, UpsertLocationRequest } from '../locations.types';
 
 interface GetLocationByIdParams {
   id: string;
@@ -52,4 +52,19 @@ export class LocationsController {
 
     return reply.status(200).send(location);
   }
+
+  public async upsertLocation(
+  request: FastifyRequest<{
+    Params: { id: string };
+    Body: UpsertLocationRequest;
+  }>,
+  reply: FastifyReply
+) {
+  const { id } = request.params;
+  const payload = request.body;
+
+  const result = await this.locationsService.upsertLocation(id, payload);
+
+  return reply.status(200).send(result);
+}
 }
