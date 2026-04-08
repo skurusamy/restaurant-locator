@@ -11,8 +11,7 @@ export const AppDataSource = new DataSource({
   password: env.database.password,
   database: env.database.name,
 
-  // Disable auto schema sync (use migrations instead)
-  synchronize: true,
+  synchronize: process.env.NODE_ENV !== 'production',
 
   logging: false,
 

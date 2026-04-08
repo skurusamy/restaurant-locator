@@ -5,8 +5,10 @@ import { locationsRoutes } from './locations/locations.route';
 import { registerGlobalErrorHandler } from './common/errors/error-handler';
 
 export function buildApp() {
+  const isTest = process.env.NODE_ENV === 'test';
+
   const app = Fastify({
-    logger: true,
+    logger: isTest ? false : true,
   });
 
   app.register(swagger, {
