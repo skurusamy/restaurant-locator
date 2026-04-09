@@ -6,7 +6,7 @@ from pathlib import Path
 NUM_RECORDS = 1000
 FIXED_X = 50
 FIXED_Y = 50
-OUTPUT_FILE = Path(__file__).resolve().parent.parent / "data" / "same_coordinates_1000.json"
+OUTPUT_FILE = Path(__file__).resolve().parent.parent / "data" / "manual_test_locations_1000.json"
 
 TYPES = ["Restaurant", "Cafe", "Bar", "Fast Food"]
 IMAGE_BASE_URL = "https://picsum.photos/200/200?random="

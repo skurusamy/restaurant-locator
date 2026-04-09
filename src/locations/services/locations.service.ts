@@ -8,7 +8,7 @@ import {
 } from '../types/locations.types';
 
 export class LocationsService {
-  constructor(private readonly locationsRepository: LocationsRepository) { }
+  constructor(private readonly locationsRepository: LocationsRepository) {}
 
   private parseCoordinates(coordinates: string): { x: number; y: number } {
     const coordinatePattern = /^x=(\d+),y=(\d+)$/;
