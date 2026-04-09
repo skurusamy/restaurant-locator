@@ -1,6 +1,12 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+const envFiles = process.env.NODE_ENV === 'test'
+  ? ['.env.test', '.env']
+  : ['.env'];
+
+for (const envFile of envFiles) {
+  dotenv.config({ path: envFile });
+}
 
 export const env = {
   server: {

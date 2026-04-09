@@ -221,6 +221,8 @@ DB_NAME=restaurant_locator
 
 These values match the PostgreSQL container defined in `docker-compose.yml`.
 
+Tests use a separate database through `.env.test` so integration test cleanup does not wipe local development data.
+
 ## 5. Start PostgreSQL with Docker
 
 ```bash
@@ -236,6 +238,8 @@ docker ps
 ```
 
 You should see `restaurant-locator-db` in the output.
+
+Note: the Docker init script creates both `restaurant_locator` and `restaurant_locator_test` on first setup. If you already have an existing Postgres volume, you may need to recreate it with `docker compose down -v` before bringing the container up again.
 
 ## 6. Seed the database
 
@@ -255,6 +259,8 @@ What this command does:
 The seed script currently reads from data/locations.json. If needed, this can be changed in scripts/seed-locations.ts to point to a different dataset.
 
 If PostgreSQL has only just started and the seed command fails immediately, wait a few seconds and run `npm run seed` again.
+
+An optional helper script is also available at `scripts/generate-test-dataset.py` if you want to generate a synthetic dataset for manual testing or pagination checks.
 
 ## 7. Check that the data was loaded
 
@@ -292,8 +298,6 @@ Once the API is running, Swagger UI is available at
 ```text
 http://localhost:3000/docs
 ```
-
-A Postman collection is available at postman/restaurant-locator.postman_collection.json.
 
 ## 9. Run the tests
 

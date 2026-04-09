@@ -29,6 +29,16 @@ export interface LocationDetailsResponse {
   'opening-hours'?: string;
 }
 
+export interface UpsertLocationResponse {
+  id: string;
+  name: string;
+  type?: string;
+  image?: string;
+  coordinates: string;
+  radius: number;
+  'opening-hours'?: string;
+}
+
 export interface UpsertLocationRequest {
   id: string;
   name: string;

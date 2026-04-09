@@ -379,6 +379,7 @@ describe('Restaurant Locator API', function () {
         type: 'Restaurant',
         image: 'https://tinyurl.com',
         coordinates: 'x=5,y=6',
+        radius: 4,
         'opening-hours': '9:00AM-10:00PM',
       });
 
@@ -418,6 +419,7 @@ describe('Restaurant Locator API', function () {
         type: 'Restaurant',
         image: 'https://tinyurl.com',
         coordinates: 'x=2,y=2',
+        radius: 5,
         'opening-hours': '11:00AM-11:00PM',
       });
 
@@ -634,6 +636,29 @@ describe('Restaurant Locator API', function () {
 
       const body = response.json();
       expect(body.errorType).to.equal('Bad Request');
+    });
+
+    it('should return 400 when coordinates exceed the supported integer range', async function () {
+      const payload = {
+        id: 'e6a1c53a-96b7-45ad-942d-bc684ee7a78f',
+        name: 'Test Restaurant 1',
+        type: 'Cafe',
+        image: 'https://picsum.photos/200/200?random=1',
+        coordinates: 'x=100000000000000000,y=50000000000000000',
+        radius: 11,
+      };
+
+      const response = await app.inject({
+        method: 'PUT',
+        url: '/locations/e6a1c53a-96b7-45ad-942d-bc684ee7a78f',
+        payload,
+      });
+
+      expect(response.statusCode).to.equal(400);
+
+      const body = response.json();
+      expect(body.errorType).to.equal('Bad Request');
+      expect(body.message).to.equal('Coordinates must contain valid non-negative integer x and y values.');
     });
   });
 });

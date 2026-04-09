@@ -13,7 +13,7 @@ async function seed() {
 
     const repo = AppDataSource.getRepository(LocationEntity);
 
-    const filePath = path.join(__dirname, '../data/locations.json');
+    const filePath = path.join(__dirname, '../data/same_coordinates_1000.json');
     const raw = fs.readFileSync(filePath, 'utf-8');
     const parsed = JSON.parse(raw);
 

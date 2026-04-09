@@ -105,6 +105,40 @@ describe('Global Error Handler', function () {
     await app.close();
   });
 
+  it('should format coordinates pattern validation errors', async function () {
+    const app = Fastify({ logger: false });
+    registerGlobalErrorHandler(app);
+
+    app.get('/pattern', async () => {
+      throw {
+        statusCode: 400,
+        validationContext: 'body',
+        validation: [
+          {
+            keyword: 'pattern',
+            instancePath: '/coordinates',
+            params: { pattern: '^x=-?\\d+,y=-?\\d+$' },
+          },
+        ],
+      };
+    });
+
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/pattern',
+    });
+
+    expect(response.statusCode).to.equal(400);
+    expect(response.json()).to.deep.equal({
+      errorType: 'Bad Request',
+      message: `Request body field 'coordinates' must be in the format "x=<non-negative integer>,y=<non-negative integer>".`,
+    });
+
+    await app.close();
+  });
+
   it('should preserve generic 500 errors', async function () {
     const app = Fastify({ logger: false });
     registerGlobalErrorHandler(app);

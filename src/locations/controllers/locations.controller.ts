@@ -40,7 +40,6 @@ export class LocationsController {
     const payload = request.body;
 
     const result = await this.locationsService.upsertLocation(id, payload);
-
     return reply.status(200).send(result);
   }
 }

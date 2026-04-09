@@ -1,0 +1,1 @@
+CREATE DATABASE restaurant_locator_test;

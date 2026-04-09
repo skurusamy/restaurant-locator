@@ -1,9 +1,10 @@
-import { toDetailsResponse, toSearchItem } from '../mappers/locations.mapper';
+import { toDetailsResponse, toSearchItem, toUpsertResponse } from '../mappers/locations.mapper';
 import { LocationsRepository } from '../repositories/locations.repository';
 import {
   LocationDetailsResponse,
   LocationSearchResponse,
   UpsertLocationRequest,
+  UpsertLocationResponse,
 } from '../types/locations.types';
 
 export class LocationsService {
@@ -15,18 +16,29 @@ export class LocationsService {
 
     if (!match) {
       throw Object.assign(
-        new Error('Coordinates must be in the format x=<non-negative integer>,y=<non-negative integer>.'), {
-        statusCode: 400
-      }
+        new Error('Coordinates must be in the format x=<non-negative integer>,y=<non-negative integer>.'),
+        {
+          statusCode: 400,
+        }
       );
     }
 
     const x = Number(match[1]);
     const y = Number(match[2]);
+    const MAX_INT = 2147483647;
 
-    if (!Number.isInteger(x) || !Number.isInteger(y)) {
+    if (!Number.isSafeInteger(x) || !Number.isSafeInteger(y)) {
       throw Object.assign(
-        new Error('Coordinates must contain non-negative integer x and y values.'),
+        new Error('Coordinates must contain valid non-negative integer x and y values.'),
+        {
+          statusCode: 400,
+        }
+      );
+    }
+
+    if (x > MAX_INT || y > MAX_INT) {
+      throw Object.assign(
+        new Error(`Coordinates must be within supported integer range (0 to ${MAX_INT}).`),
         {
           statusCode: 400,
         }
@@ -61,7 +73,7 @@ export class LocationsService {
     return toDetailsResponse(location);
   }
 
-  public async upsertLocation(pathId: string, payload: UpsertLocationRequest): Promise<LocationDetailsResponse> {
+  public async upsertLocation(pathId: string, payload: UpsertLocationRequest): Promise<UpsertLocationResponse> {
     if (pathId !== payload.id) {
       throw Object.assign(new Error('Path id must match body id.'), {
         statusCode: 400,
@@ -89,6 +101,6 @@ export class LocationsService {
       });
     }
 
-    return toDetailsResponse(savedLocation);
+    return toUpsertResponse(savedLocation);
   }
 }

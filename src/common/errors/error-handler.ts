@@ -52,10 +52,18 @@ function formatValidationMessage(error: any): string {
     case 'minimum':
       return `${fieldLabel} must be at least ${validationError.params?.limit}.`;
     case 'maximum':
+      if (fieldName === 'x' || fieldName === 'y' || fieldName === 'page') {
+        return `${fieldLabel} must be within supported range (0 to ${validationError.params?.limit}).`;
+      }
       return `${fieldLabel} must be at most ${validationError.params?.limit}.`;
     case 'format':
       if (validationError.params?.format === 'uuid') {
         return `${fieldLabel} must be a valid UUID.`;
+      }
+      return `${fieldLabel} has an invalid format.`;
+    case 'pattern':
+      if (fieldName === 'coordinates') {
+        return `${fieldLabel} must be in the format "x=<non-negative integer>,y=<non-negative integer>".`;
       }
       return `${fieldLabel} has an invalid format.`;
     case 'type':

@@ -1,3 +1,4 @@
+import { DEFAULT_LIMIT, DEFAULT_PAGE, MAX_INT_32, MAX_LIMIT } from '../../common/constants/constants';
 import {
   badRequestResponseSchema,
   internalServerErrorResponseSchema,
@@ -15,24 +16,29 @@ export const searchLocationsSchema = {
       x: {
         type: 'integer',
         minimum: 0,
+        examples: [2],
         description: 'User x coordinate',
+        maximum: MAX_INT_32
       },
       y: {
         type: 'integer',
         minimum: 0,
+        examples: [2],
         description: 'User y coordinate',
+        maximum: MAX_INT_32,
       },
       page: {
         type: 'integer',
         minimum: 1,
-        default: 1,
+        default: DEFAULT_PAGE,
         description: 'Page number for pagination',
+        maximum: MAX_INT_32,
       },
       limit: {
         type: 'integer',
         minimum: 1,
-        maximum: 50,
-        default: 10,
+        maximum: MAX_LIMIT,
+        default: DEFAULT_LIMIT,
         description: 'Number of items per page',
       },
     },
@@ -43,6 +49,7 @@ export const searchLocationsSchema = {
       properties: {
         'user-location': {
           type: 'string',
+          examples: ['x=2,y=2'],
         },
         locations: {
           type: 'array',
@@ -56,14 +63,15 @@ export const searchLocationsSchema = {
               name: {
                 type: 'string',
                 minLength: 1,
+                examples: ['Mantra Restaurant'],
               },
               coordinates: {
                 type: 'string',
-                example: 'x=2,y=2',
+                examples: ['x=2,y=2'],
               },
               distance: {
                 type: 'number',
-                example: 1.0,
+                examples: [1.0],
               },
             },
             required: ['id', 'name', 'coordinates', 'distance'],
@@ -71,15 +79,15 @@ export const searchLocationsSchema = {
         },
         page: {
           type: 'integer',
-          example: 1,
+          examples: [1],
         },
         limit: {
           type: 'integer',
-          example: 10,
+          examples: [10],
         },
         total: {
           type: 'integer',
-          example: 2,
+          examples: [2],
         },
       },
       required: ['user-location', 'locations', 'page', 'limit', 'total'],
@@ -100,6 +108,7 @@ export const getLocationByIdSchema = {
         type: 'string',
         format: 'uuid',
         description: 'Location id',
+        examples: ['51e1545c-8b65-4d83-82f9-7fcad4a23111']
       },
     },
   },
@@ -110,25 +119,29 @@ export const getLocationByIdSchema = {
         id: {
           type: 'string',
           format: 'uuid',
+          examples: ['51e1545c-8b65-4d83-82f9-7fcad4a23111'],
         },
         name: {
           type: 'string',
           minLength: 1,
+          examples: ['Da Jia Le'],
         },
         type: {
           type: 'string',
+          examples: ['Restaurant'],
         },
         image: {
           type: 'string',
           format: 'uri',
+          examples: ['https://tinyurl.com'],
         },
         coordinates: {
           type: 'string',
-          example: 'x=5,y=5',
+          examples: ['x=5,y=5'],
         },
         'opening-hours': {
           type: 'string',
-          example: '10:00AM-11:00PM',
+          examples: ['10:00AM-11:00PM'],
         },
       },
       required: ['id', 'name', 'coordinates'],
@@ -150,6 +163,7 @@ export const upsertLocationSchema = {
         type: 'string',
         format: 'uuid',
         description: 'Location id',
+        examples: ['51e1545c-8b65-4d83-82f9-7fcad4a23111'],
       },
     },
   },
@@ -160,28 +174,35 @@ export const upsertLocationSchema = {
       id: {
         type: 'string',
         format: 'uuid',
+        examples: ['51e1545c-8b65-4d83-82f9-7fcad4a23111']
       },
       name: {
         type: 'string',
         minLength: 1,
+        examples: ['Da Jia Le'],
       },
       type: {
         type: 'string',
+        examples: ['Restaurant'],
       },
       image: {
         type: 'string',
         format: 'uri',
+        examples: ['https://tinyurl.com'],
       },
       'opening-hours': {
         type: 'string',
+        examples: ['10:00AM-11:00PM'],
       },
       coordinates: {
         type: 'string',
         pattern: '^x=\\d+,y=\\d+$',
+        examples: ['x=5,y=5'],
       },
       radius: {
         type: 'integer',
         minimum: 1,
+        examples: [1],
       },
     },
   },
@@ -196,22 +217,32 @@ export const upsertLocationSchema = {
         name: {
           type: 'string',
           minLength: 1,
+          examples: ['Da Jia Le'],
         },
         type: {
           type: 'string',
+          examples: ['Restaurant'],
         },
         image: {
           type: 'string',
           format: 'uri',
+          examples: ['https://tinyurl.com'],
         },
         coordinates: {
           type: 'string',
+          examples: ['x=5,y=5'],
+        },
+        radius: {
+          type: 'integer',
+          minimum: 1,
+          examples: [1],
         },
         'opening-hours': {
           type: 'string',
+          examples: ['10:00AM-11:00PM'],
         },
       },
-      required: ['id', 'name', 'coordinates'],
+      required: ['id', 'name', 'coordinates', 'radius'],
     },
     400: badRequestResponseSchema,
     500: internalServerErrorResponseSchema,
