@@ -97,6 +97,7 @@ Validation rules:
 - `y` must be a non-negative integer
 - `page` must be at least `1`
 - `limit` must be between `1` and `50`
+- numeric request values are validated within the supported PostgreSQL integer range
 
 ### How this endpoint works
 
@@ -133,11 +134,27 @@ Validation rules:
 
 This is the nice-to-have endpoint from the challenge.
 
+For this optional endpoint, the example request body in the challenge was treated as the intended request shape. Based on that, `id`, `name`, `coordinates`, and `radius` are required, while `type`, `image`, and `opening-hours` are optional.
+
 ```text
 PUT /locations/51e1545c-8b65-4d83-82f9-7fcad4a23111
 ```
 
 Request body:
+
+```json
+{
+  "name": "Da Jia Le",
+  "type": "Restaurant",
+  "id": "51e1545c-8b65-4d83-82f9-7fcad4a23111",
+  "opening-hours": "10:00AM-11:00PM",
+  "image": "https://tinyurl.com",
+  "coordinates": "x=5,y=5",
+  "radius": 1
+}
+```
+
+Example response:
 
 ```json
 {
@@ -261,6 +278,7 @@ What this command does:
 - validates the input records
 - maps the JSON fields into the database entity format
 - upserts the data in batches
+- skips invalid records instead of failing the whole import
 
 The seed script currently reads from data/locations.json. If needed, this can be changed in scripts/seed-locations.ts to point to a different dataset.
 
@@ -396,3 +414,7 @@ Here are a few more choices:
 - `Why validation and clear errors`: Invalid requests should fail in a predictable way. That makes the API easier to test, debug, and use.
 
 - `Why separate test types`: API tests cover real request flows, while unit tests cover service and error-handling logic in isolation. This gives clearer test boundaries and better coverage of both normal behavior and edge cases.
+
+- `Why schema sync for local setup`: For this challenge, local schema creation uses TypeORM sync to keep the setup simple. In a larger service, migrations would be the better choice for controlled schema changes.
+
+- `Why tie ordering is left simple`: Search results are sorted by distance as required. If two restaurants have the same distance, the current implementation does not add a second tie-break sort.

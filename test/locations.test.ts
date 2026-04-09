@@ -547,7 +547,7 @@ describe('Restaurant Locator API', function () {
       expect(body.errorType).to.equal('Bad Request');
     });
 
-    it('should return 400 when radius exceed the supported integer range', async function () {
+    it('should return 400 when radius is less than 1', async function () {
       const payload = {
         id: '99999999-9999-9999-9999-999999999999',
         name: 'Bad Radius',
@@ -570,7 +570,7 @@ describe('Restaurant Locator API', function () {
       expect(body.errorType).to.equal('Bad Request');
     });
 
-    it('should return 400 when radius is ', async function () {
+    it('should return 400 when radius exceeds the supported integer range', async function () {
       const payload = {
         id: '99999999-9999-9999-9999-999999999999',
         name: 'Bad Radius',
