@@ -11,7 +11,14 @@ describe('Restaurant Locator API', function () {
   let appInitialized = false;
 
   before(async function () {
-    await AppDataSource.initialize();
+    try {
+      await AppDataSource.initialize();
+    } catch (error) {
+      throw new Error(
+        'Integration tests require PostgreSQL to be running and reachable using .env.test. Start it with "docker compose up -d" and rerun "npm test".'
+      );
+    }
+
     dataSourceInitialized = true;
 
     const repo = AppDataSource.getRepository(LocationEntity);
@@ -118,6 +125,23 @@ describe('Restaurant Locator API', function () {
       expect(body.locations[0].distance).to.be.at.most(
         body.locations[1].distance
       );
+    });
+
+    it('should use id as a tie-breaker when distances are equal', async function () {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/locations/search?x=2&y=3',
+      });
+
+      expect(response.statusCode).to.equal(200);
+
+      const body = response.json();
+
+      expect(body.locations).to.have.lengthOf(2);
+      expect(body.locations[0].id).to.equal('11111111-1111-1111-1111-111111111111');
+      expect(body.locations[0].distance).to.equal(1);
+      expect(body.locations[1].id).to.equal('22222222-2222-2222-2222-222222222222');
+      expect(body.locations[1].distance).to.equal(1);
     });
 
     it('should return an empty list when no locations are visible', async function () {

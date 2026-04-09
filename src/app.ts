@@ -9,6 +9,11 @@ export function buildApp() {
 
   const app = Fastify({
     logger: isTest ? false : true,
+    ajv: {
+      customOptions: {
+        removeAdditional: false,
+      },
+    },
   });
 
   app.register(swagger, {
