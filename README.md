@@ -248,6 +248,28 @@ docker compose up -d
 
 This starts a local PostgreSQL container named `restaurant-locator-db`.
 
+If `docker compose up -d` fails with the following error:
+
+```bash
+error getting credentials - err: exec: "docker-credential-desktop": executable file not found in $PATH, out: ``
+```
+
+this is a local Docker Desktop configuration issue on the machine, not an issue with the project code.
+
+On macOS, run:
+
+```bash
+export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+docker compose up -d
+```
+
+To make the fix permanent:
+
+```bash
+echo 'export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
 If you want to confirm the container is running:
 
 ```bash
