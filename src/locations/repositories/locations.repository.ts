@@ -1,6 +1,6 @@
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { AppDataSource } from '../db/data-source';
-import { LocationEntity } from '../db/entities/locations/locations.entity';
+import { AppDataSource } from '../../db/data-source';
+import { LocationEntity } from '../../db/entities/locations/locations.entity';
 
 export interface SearchLocationRow {
   id: string;
@@ -28,41 +28,29 @@ export class LocationsRepository {
     });
   }
 
-  private buildSearchByDistanceQuery(
-    userX: number,
-    userY: number
-  ): SelectQueryBuilder<LocationEntity> {
-    const distanceSquaredExpr =
-      '(POWER(l.x - :userX, 2) + POWER(l.y - :userY, 2))';
+  private buildSearchByDistanceQuery(userX: number, userY: number): SelectQueryBuilder<LocationEntity> {
+    const distanceSquaredExpr = '(POWER(loc.x - :userX, 2) + POWER(loc.y - :userY, 2))';
 
     return this.repository
-      .createQueryBuilder('l')
-      .where(`${distanceSquaredExpr} <= POWER(l.radius, 2)`)
-      .andWhere(':userX BETWEEN l.x - l.radius AND l.x + l.radius')
-      .andWhere(':userY BETWEEN l.y - l.radius AND l.y + l.radius')
+      .createQueryBuilder('loc')
+      .where(`${distanceSquaredExpr} <= POWER(loc.radius, 2)`)
+      .andWhere(':userX BETWEEN loc.x - loc.radius AND loc.x + loc.radius')
+      .andWhere(':userY BETWEEN loc.y - loc.radius AND loc.y + loc.radius')
       .setParameters({ userX, userY });
   }
 
-  public async searchByDistance(
-    userX: number,
-    userY: number,
-    page = 1,
-    limit = 10
-  ): Promise<SearchLocationsResult> {
-    const safePage = Math.max(page, 1);
-    const safeLimit = Math.min(Math.max(limit, 1), 50);
+  public async searchByDistance(userX: number, userY: number, safePage = 1, safeLimit = 10): Promise<SearchLocationsResult> {
     const offset = (safePage - 1) * safeLimit;
-    const distanceExpr =
-      'SQRT(POWER(l.x - :userX, 2) + POWER(l.y - :userY, 2))';
+    const distanceExpr = 'SQRT(POWER(loc.x - :userX, 2) + POWER(loc.y - :userY, 2))';
 
     const baseQuery = this.buildSearchByDistanceQuery(userX, userY);
     const total = await baseQuery.getCount();
 
     const rows = await this.buildSearchByDistanceQuery(userX, userY)
-      .select('l.id', 'id')
-      .addSelect('l.name', 'name')
-      .addSelect('l.x', 'x')
-      .addSelect('l.y', 'y')
+      .select('loc.id', 'id')
+      .addSelect('loc.name', 'name')
+      .addSelect('loc.x', 'x')
+      .addSelect('loc.y', 'y')
       .addSelect(distanceExpr, 'distance')
       .orderBy('distance', 'ASC')
       .offset(offset)

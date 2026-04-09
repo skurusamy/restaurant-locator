@@ -17,10 +17,7 @@ function getSourceLabel(validationContext?: string): string {
   }
 }
 
-function extractFieldName(
-  instancePath: string | undefined,
-  missingProperty: string | undefined
-): string | null {
+function extractFieldName(instancePath: string | undefined, missingProperty: string | undefined): string | null {
   if (missingProperty) {
     return missingProperty;
   }
@@ -74,9 +71,9 @@ export function registerGlobalErrorHandler(app: FastifyInstance): void {
 
     const statusCode =
       typeof error === 'object' &&
-      error !== null &&
-      'statusCode' in error &&
-      typeof (error as any).statusCode === 'number'
+        error !== null &&
+        'statusCode' in error &&
+        typeof (error as any).statusCode === 'number'
         ? (error as any).statusCode
         : 500;
 

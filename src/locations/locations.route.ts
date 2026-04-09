@@ -1,12 +1,12 @@
 import { FastifyInstance } from 'fastify';
 import { LocationsController } from './controllers/locations.controller';
-import { LocationsService } from './services/locations.service';
-import { LocationsRepository } from './locations.repository';
+import { LocationsRepository } from './repositories/locations.repository';
 import {
-  searchLocationsSchema,
   getLocationByIdSchema,
+  searchLocationsSchema,
   upsertLocationSchema,
-} from './locations.schema';
+} from './schemas/locations.schema';
+import { LocationsService } from './services/locations.service';
 
 export async function locationsRoutes(app: FastifyInstance) {
   const repository = new LocationsRepository();
@@ -30,10 +30,10 @@ export async function locationsRoutes(app: FastifyInstance) {
   );
 
   app.put(
-  '/locations/:id',
-  {
-    schema: upsertLocationSchema,
-  },
-  controller.upsertLocation.bind(controller)
-);
+    '/locations/:id',
+    {
+      schema: upsertLocationSchema,
+    },
+    controller.upsertLocation.bind(controller)
+  );
 }

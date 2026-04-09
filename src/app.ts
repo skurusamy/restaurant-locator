@@ -26,10 +26,8 @@ export function buildApp() {
   });
 
   app.get('/health', async () => {
-      return { status: 'ok' };
-    }
-  );
-
+    return { status: 'ok' };
+  });
 
   registerGlobalErrorHandler(app);
 

@@ -2,7 +2,7 @@ import {
   badRequestResponseSchema,
   internalServerErrorResponseSchema,
   notFoundResponseSchema,
-} from '../common/schemas/error.schema';
+} from '../../common/schemas/error.schema';
 
 export const searchLocationsSchema = {
   summary: 'Search visible restaurant locations',
@@ -42,7 +42,7 @@ export const searchLocationsSchema = {
       type: 'object',
       properties: {
         'user-location': {
-          type: 'string'
+          type: 'string',
         },
         locations: {
           type: 'array',
@@ -132,7 +132,7 @@ export const getLocationByIdSchema = {
     },
     400: badRequestResponseSchema,
     404: notFoundResponseSchema,
-    500: internalServerErrorResponseSchema
+    500: internalServerErrorResponseSchema,
   },
 };
 
@@ -171,7 +171,8 @@ export const upsertLocationSchema = {
         type: 'string',
       },
       coordinates: {
-        type: 'string'
+        type: 'string',
+        pattern: '^x=\\d+,y=\\d+$',
       },
       radius: {
         type: 'integer',
@@ -197,7 +198,7 @@ export const upsertLocationSchema = {
           type: 'string',
         },
         coordinates: {
-          type: 'string'
+          type: 'string',
         },
         'opening-hours': {
           type: 'string',
@@ -206,6 +207,6 @@ export const upsertLocationSchema = {
       required: ['id', 'name', 'coordinates'],
     },
     400: badRequestResponseSchema,
-    500: internalServerErrorResponseSchema
+    500: internalServerErrorResponseSchema,
   },
 };
