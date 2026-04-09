@@ -547,7 +547,7 @@ describe('Restaurant Locator API', function () {
       expect(body.errorType).to.equal('Bad Request');
     });
 
-    it('should return 400 when radius is 0', async function () {
+    it('should return 400 when radius exceed the supported integer range', async function () {
       const payload = {
         id: '99999999-9999-9999-9999-999999999999',
         name: 'Bad Radius',
@@ -556,6 +556,29 @@ describe('Restaurant Locator API', function () {
         'opening-hours': '9:00AM-10:00PM',
         coordinates: 'x=5,y=6',
         radius: 0,
+      };
+
+      const response = await app.inject({
+        method: 'PUT',
+        url: '/locations/99999999-9999-9999-9999-999999999999',
+        payload,
+      });
+
+      expect(response.statusCode).to.equal(400);
+
+      const body = response.json();
+      expect(body.errorType).to.equal('Bad Request');
+    });
+
+    it('should return 400 when radius is ', async function () {
+      const payload = {
+        id: '99999999-9999-9999-9999-999999999999',
+        name: 'Bad Radius',
+        type: 'Restaurant',
+        image: 'https://tinyurl.com',
+        'opening-hours': '9:00AM-10:00PM',
+        coordinates: 'x=5,y=6',
+        radius: 214748364999,
       };
 
       const response = await app.inject({

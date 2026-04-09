@@ -203,6 +203,7 @@ export const upsertLocationSchema = {
         type: 'integer',
         minimum: 1,
         examples: [1],
+        maximum: MAX_INT_32
       },
     },
   },
