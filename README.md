@@ -1,6 +1,6 @@
 # Restaurant Locator API
 
-This repository contains an API implementation to create an application to help users find the closest restaurant.
+This repository contains an API for helping users find the closest restaurant.
 
 A restaurant is considered visible when:
 
@@ -182,7 +182,7 @@ You do not need those exact versions, but using a recent Node 22+ setup will giv
 ## 1. Clone the repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/skurusamy/restaurant-locator.git
 cd restaurant-locator
 ```
 
@@ -369,7 +369,7 @@ Example error response:
 
 Here is a simple summary of the main choices in this project:
 
-| Choice | Why I used it |
+| Choice | Reason |
 |---|---|
 | `Fastify` | It is small, fast, and easy to work with for building APIs. |
 | `TypeScript` | It helps catch mistakes earlier and makes the code easier to follow. |
@@ -390,4 +390,4 @@ Here are a few choices I want to explain briefly:
 
 - `Why validation and clear errors`: I wanted invalid requests to fail in a predictable way. That makes the API easier to test, easier to debug, and nicer to use.
 
-- `Why separate test types`: I kept API tests for end-to-end behavior and added unit tests for service and error-handling logic. This makes the tests easier to understand and helps cover both real request flows and edge cases.
+- `Why separate test types`: API tests cover real request flows, while unit tests cover service and error-handling logic in isolation. This makes the test suite easier to understand and helps cover both normal behavior and edge cases.
