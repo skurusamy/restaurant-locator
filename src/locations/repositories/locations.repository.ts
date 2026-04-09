@@ -53,6 +53,7 @@ export class LocationsRepository {
       .addSelect('loc.y', 'y')
       .addSelect(distanceExpr, 'distance')
       .orderBy('distance', 'ASC')
+      .addOrderBy('loc.id', 'ASC')
       .offset(offset)
       .limit(safeLimit)
       .getRawMany<SearchLocationRow>();

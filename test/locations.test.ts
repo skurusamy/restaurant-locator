@@ -7,9 +7,12 @@ import { LocationEntity } from '../src/db/entities/locations/locations.entity';
 
 describe('Restaurant Locator API', function () {
   let app: FastifyInstance;
+  let dataSourceInitialized = false;
+  let appInitialized = false;
 
   before(async function () {
     await AppDataSource.initialize();
+    dataSourceInitialized = true;
 
     const repo = AppDataSource.getRepository(LocationEntity);
 
@@ -50,14 +53,22 @@ describe('Restaurant Locator API', function () {
 
     app = buildApp();
     await app.ready();
+    appInitialized = true;
   });
 
   after(async function () {
-    const repo = AppDataSource.getRepository(LocationEntity);
-    await repo.clear();
+    if (dataSourceInitialized && AppDataSource.isInitialized) {
+      const repo = AppDataSource.getRepository(LocationEntity);
+      await repo.clear();
+    }
 
-    await app.close();
-    await AppDataSource.destroy();
+    if (appInitialized) {
+      await app.close();
+    }
+
+    if (dataSourceInitialized && AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
+    }
   });
 
   describe('GET /health', function () {

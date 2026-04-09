@@ -11,6 +11,7 @@ export const searchLocationsSchema = {
     'Returns locations visible from the given user coordinates, sorted by distance ascending.',
   querystring: {
     type: 'object',
+    additionalProperties: false,
     required: ['x', 'y'],
     properties: {
       x: {
@@ -102,6 +103,7 @@ export const getLocationByIdSchema = {
   description: 'Returns detailed information for a specific location id.',
   params: {
     type: 'object',
+    additionalProperties: false,
     required: ['id'],
     properties: {
       id: {
@@ -157,6 +159,7 @@ export const upsertLocationSchema = {
   description: 'Creates a new location if it does not exist, or updates the existing one.',
   params: {
     type: 'object',
+    additionalProperties: false,
     required: ['id'],
     properties: {
       id: {
@@ -169,6 +172,7 @@ export const upsertLocationSchema = {
   },
   body: {
     type: 'object',
+    additionalProperties: false,
     required: ['id', 'name', 'coordinates', 'radius'],
     properties: {
       id: {

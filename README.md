@@ -299,10 +299,10 @@ What this command does:
 - connects to PostgreSQL
 - creates the schema if needed through TypeORM
 - reads restaurant data from `data/locations.json`
-- validates the input records
+- performs basic validation on the input records
 - maps the JSON fields into the database entity format
 - upserts the data in batches
-- skips invalid records instead of failing the whole import
+- skips records that fail those checks instead of failing the whole import
 
 The seed script currently reads from data/locations.json. If needed, this can be changed in scripts/seed-locations.ts to point to a different dataset.
 
@@ -441,4 +441,4 @@ Here are a few more choices:
 
 - `Why schema sync for local setup`: For this challenge, local schema creation uses TypeORM sync to keep the setup simple. In a larger service, migrations would be the better choice for controlled schema changes.
 
-- `Why tie ordering is left simple`: Search results are sorted by distance as required. If two restaurants have the same distance, the current implementation does not add a second tie-break sort.
+- `Why tie ordering is deterministic`: Search results are sorted by distance as required. If two restaurants have the same distance, `id` is used as a simple secondary sort to keep ordering stable.
