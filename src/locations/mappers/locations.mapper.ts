@@ -1,10 +1,10 @@
-import { LocationEntity } from "../../db/entities/locations/locations.entity";
-import { SearchLocationRow } from "../repositories/locations.repository";
+import { LocationEntity } from '../../db/entities/locations/locations.entity';
+import { SearchLocationRow } from '../repositories/locations.repository';
 import {
   LocationDetailsResponse,
   LocationSearchItem,
   UpsertLocationResponse,
-} from "../types/locations.types";
+} from '../types/locations.types';
 
 export function toSearchItem(row: SearchLocationRow): LocationSearchItem {
   return {
@@ -22,7 +22,7 @@ export function toDetailsResponse(entity: LocationEntity): LocationDetailsRespon
     type: entity.type,
     image: entity.image ?? undefined,
     coordinates: `x=${entity.x},y=${entity.y}`,
-    "opening-hours": entity.openingHours ?? undefined,
+    'opening-hours': entity.openingHours ?? undefined,
   };
 }
 
@@ -34,6 +34,6 @@ export function toUpsertResponse(entity: LocationEntity): UpsertLocationResponse
     image: entity.image ?? undefined,
     coordinates: `x=${entity.x},y=${entity.y}`,
     radius: entity.radius,
-    "opening-hours": entity.openingHours ?? undefined,
+    'opening-hours': entity.openingHours ?? undefined,
   };
 }

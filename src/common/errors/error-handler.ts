@@ -90,8 +90,10 @@ export function registerGlobalErrorHandler(app: FastifyInstance): void {
     const message =
       statusCode === 400
         ? formatValidationMessage(error)
-        : error instanceof Error
-          ? error.message || 'Internal Server Error'
+        : statusCode === 404
+          ? error instanceof Error && error.message
+            ? error.message
+            : 'Not Found'
           : 'Internal Server Error';
 
     const errorType =

@@ -19,7 +19,7 @@ export const searchLocationsSchema = {
         minimum: 0,
         examples: [2],
         description: 'User x coordinate',
-        maximum: MAX_INT_32
+        maximum: MAX_INT_32,
       },
       y: {
         type: 'integer',
@@ -110,7 +110,7 @@ export const getLocationByIdSchema = {
         type: 'string',
         format: 'uuid',
         description: 'Location id',
-        examples: ['51e1545c-8b65-4d83-82f9-7fcad4a23111']
+        examples: ['51e1545c-8b65-4d83-82f9-7fcad4a23111'],
       },
     },
   },
@@ -178,7 +178,7 @@ export const upsertLocationSchema = {
       id: {
         type: 'string',
         format: 'uuid',
-        examples: ['51e1545c-8b65-4d83-82f9-7fcad4a23111']
+        examples: ['51e1545c-8b65-4d83-82f9-7fcad4a23111'],
       },
       name: {
         type: 'string',
@@ -207,7 +207,7 @@ export const upsertLocationSchema = {
         type: 'integer',
         minimum: 1,
         examples: [1],
-        maximum: MAX_INT_32
+        maximum: MAX_INT_32,
       },
     },
   },

@@ -173,7 +173,7 @@ describe('Global Error Handler', function () {
     await app.close();
   });
 
-  it('should preserve generic 500 errors', async function () {
+  it('should return a generic message for 500 errors', async function () {
     const app = Fastify({ logger: false });
     registerGlobalErrorHandler(app);
 
@@ -191,7 +191,7 @@ describe('Global Error Handler', function () {
     expect(response.statusCode).to.equal(500);
     expect(response.json()).to.deep.equal({
       errorType: 'Internal Server Error',
-      message: 'Something broke',
+      message: 'Internal Server Error',
     });
 
     await app.close();

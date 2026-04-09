@@ -10,7 +10,7 @@ interface GetLocationByIdParams {
 }
 
 export class LocationsController {
-  constructor(private readonly locationsService: LocationsService) { }
+  constructor(private readonly locationsService: LocationsService) {}
 
   public async searchLocations(request: FastifyRequest<{ Querystring: SearchLocationsQuery }>, reply: FastifyReply) {
     const { x, y, page = 1, limit = 10 } = request.query;
