@@ -589,5 +589,51 @@ describe('Restaurant Locator API', function () {
       const body = response.json();
       expect(body.errorType).to.equal('Bad Request');
     });
+
+    it('should return 400 when name is an empty string', async function () {
+      const payload = {
+        id: '13131313-1313-1313-1313-131313131313',
+        name: '',
+        type: 'Restaurant',
+        image: 'https://tinyurl.com',
+        'opening-hours': '9:00AM-10:00PM',
+        coordinates: 'x=5,y=6',
+        radius: 3,
+      };
+
+      const response = await app.inject({
+        method: 'PUT',
+        url: '/locations/13131313-1313-1313-1313-131313131313',
+        payload,
+      });
+
+      expect(response.statusCode).to.equal(400);
+
+      const body = response.json();
+      expect(body.errorType).to.equal('Bad Request');
+    });
+
+    it('should return 400 when image is not a valid URI', async function () {
+      const payload = {
+        id: '14141414-1414-1414-1414-141414141414',
+        name: 'Bad Image',
+        type: 'Restaurant',
+        image: 'not-a-valid-uri',
+        'opening-hours': '9:00AM-10:00PM',
+        coordinates: 'x=5,y=6',
+        radius: 3,
+      };
+
+      const response = await app.inject({
+        method: 'PUT',
+        url: '/locations/14141414-1414-1414-1414-141414141414',
+        payload,
+      });
+
+      expect(response.statusCode).to.equal(400);
+
+      const body = response.json();
+      expect(body.errorType).to.equal('Bad Request');
+    });
   });
 });

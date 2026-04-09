@@ -55,6 +55,7 @@ export const searchLocationsSchema = {
               },
               name: {
                 type: 'string',
+                minLength: 1,
               },
               coordinates: {
                 type: 'string',
@@ -112,12 +113,14 @@ export const getLocationByIdSchema = {
         },
         name: {
           type: 'string',
+          minLength: 1,
         },
         type: {
           type: 'string',
         },
         image: {
           type: 'string',
+          format: 'uri',
         },
         coordinates: {
           type: 'string',
@@ -160,12 +163,14 @@ export const upsertLocationSchema = {
       },
       name: {
         type: 'string',
+        minLength: 1,
       },
       type: {
         type: 'string',
       },
       image: {
         type: 'string',
+        format: 'uri',
       },
       'opening-hours': {
         type: 'string',
@@ -190,12 +195,14 @@ export const upsertLocationSchema = {
         },
         name: {
           type: 'string',
+          minLength: 1,
         },
         type: {
           type: 'string',
         },
         image: {
           type: 'string',
+          format: 'uri',
         },
         coordinates: {
           type: 'string',

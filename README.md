@@ -14,7 +14,7 @@ A restaurant is considered visible when:
 ### SHOULD requirements
 
 - implemented in Node.js
-- built with Fastify
+- built with Fastify framework
 - implements `GET /locations/search`
 - implements `GET /locations/:id`
 - reads and processes locations from a provided JSON file
@@ -102,7 +102,7 @@ Validation rules:
 
 - The search is performed in the database so the API does not need to load all restaurants into memory first.
 - The database is queried once to count matching restaurants and once to fetch the current paginated result set.
-- Visibility filtering uses a squared-distance comparison, while the final returned distance uses Euclidean distance.
+- The search checks which locations are in range, and the response includes the actual distance for each one.
 - Only the fields needed for the search response are selected.
 - Pagination was added as an optional enhancement because the challenge mentions larger datasets, and it helps avoid returning very large responses at once.
 
@@ -156,6 +156,8 @@ Validation rules:
 - path `id` and body `id` must match
 - `coordinates` must follow `x=<non-negative integer>,y=<non-negative integer>`
 - `radius` must be a positive integer
+- `name` must not be empty
+- `image`, if provided, must be a valid URI
 
 ## 4. Health check
 
@@ -167,7 +169,7 @@ This endpoint is only for local verification and is not part of the challenge it
 
 ## Developer Guide
 
-This section is meant to help a reviewer or interviewer get the project running quickly without guessing the setup steps.
+This section explains the quickest way to get the project running locally.
 
 ## Recommended versions
 
@@ -245,10 +247,12 @@ What this command does:
 
 - connects to PostgreSQL
 - creates the schema if needed through TypeORM
-- reads restaurant data from `data/locations_big.json`
+- reads restaurant data from `data/locations.json`
 - validates the input records
 - maps the JSON fields into the database entity format
 - upserts the data in batches
+
+The seed script currently reads from data/locations.json. If needed, this can be changed in scripts/seed-locations.ts to point to a different dataset.
 
 If PostgreSQL has only just started and the seed command fails immediately, wait a few seconds and run `npm run seed` again.
 
@@ -283,15 +287,13 @@ npm run build
 npm start
 ```
 
-Once the API is running, open:
+Once the API is running, Swagger UI is available at
 
 ```text
 http://localhost:3000/docs
 ```
 
-That Swagger page is the fastest way to explore and manually test the endpoints.
-
-If helpful, a Postman collection can be added later, but Swagger should be enough to get started quickly.
+A Postman collection is available at postman/restaurant-locator.postman_collection.json.
 
 ## 9. Run the tests
 
@@ -302,26 +304,10 @@ npm test
 The test suite includes:
 
 - API integration tests
-- service-level unit tests
-- global error-handler tests
+- service unit tests
+- error-handler unit tests
 
 Note: the integration tests expect PostgreSQL to be running locally.
-
-## Seed Script
-
-The seed script lives at:
-
-```text
-scripts/seed-locations.ts
-```
-
-At the moment it reads from:
-
-```text
-data/locations_big.json
-```
-
-If needed, that input path can be changed easily.
 
 ## Project Structure
 
@@ -378,16 +364,16 @@ Here is a simple summary of the main choices in this project:
 | `Swagger` | Generated from the Fastify route schemas so the docs stay close to the API. |
 | `Mocha + Chai` | They are simple and lightweight for both API tests and unit tests. |
 
-Here are a few choices I want to explain briefly:
+Here are a few more choices:
 
-- `Why PostgreSQL`: I wanted the search to work in a way that still makes sense if the dataset grows. PostgreSQL lets the API filter and sort data before it is returned.
+- `Why PostgreSQL`: This approach still works well if the dataset grows. PostgreSQL allows filtering and sorting before the data is returned.
 
-- `Why database filtering and sorting`: Instead of loading every restaurant into the app and checking them one by one, the database does the heavy work. That keeps the API simpler and more scalable.
+- `Why database filtering and sorting`: The database handles filtering and sorting, which avoids loading unnecessary data into the API. Filtering and sorting are done in the database so the API does not need to load every location first.
 
-- `Why pagination`: Pagination is not required for the basic challenge, but it helps avoid returning very large responses at once. It is a small addition that makes the search endpoint more practical.
+- `Why pagination`: Pagination is not strictly required by the challenge, but it is a practical addition for larger result sets. It keeps response sizes predictable and makes the search endpoint easier to use as the dataset grows.
 
-- `Why a seed script`: The challenge provides restaurant data in JSON. The seed script gives a repeatable way to load that data into PostgreSQL, validate it, and re-run the setup quickly.
+- `Why a seed script`: The challenge provides restaurant data in JSON, so a seed script gives a simple and repeatable way to load it into PostgreSQL and validate it during setup.
 
-- `Why validation and clear errors`: I wanted invalid requests to fail in a predictable way. That makes the API easier to test, easier to debug, and nicer to use.
+- `Why validation and clear errors`: Invalid requests should fail in a predictable way. That makes the API easier to test, debug, and use.
 
-- `Why separate test types`: API tests cover real request flows, while unit tests cover service and error-handling logic in isolation. This makes the test suite easier to understand and helps cover both normal behavior and edge cases.
+- `Why separate test types`: API tests cover real request flows, while unit tests cover service and error-handling logic in isolation. This gives clearer test boundaries and better coverage of both normal behavior and edge cases.
