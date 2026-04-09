@@ -1,6 +1,6 @@
-# Bonial Technical Challenge - Restaurant Locator API
+# Restaurant Locator API
 
-This repository contains an API implementation for the Bonial technical challenge to create an application to help users find the closest restaurant.
+This repository contains an API implementation to create an application to help users find the closest restaurant.
 
 A restaurant is considered visible when:
 
