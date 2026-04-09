@@ -1,14 +1,13 @@
 {
   "name": "restaurant-locator",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Fastify and TypeScript API for searching nearby restaurant locations.",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/src/server.js",
     "seed": "tsx scripts/seed-locations.ts",
-    "test": "NODE_ENV=test mocha -r ts-node/register test/**/*.test.ts"
+    "test": "NODE_ENV=test node --import tsx ./node_modules/mocha/bin/mocha.js test/**/*.test.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +18,6 @@
     "@types/mocha": "^10.0.10",
     "chai": "^6.2.2",
     "mocha": "^11.7.5",
-    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   },

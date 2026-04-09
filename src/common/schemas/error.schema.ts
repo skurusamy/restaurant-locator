@@ -1,4 +1,4 @@
-export const errorResponseSchema = {
+const errorResponseSchema = {
   type: 'object',
   properties: {
     errorType: {
@@ -13,7 +13,7 @@ export const errorResponseSchema = {
   required: ['message'],
 };
 
-export function createErrorResponseSchema(errorType: string, message: string) {
+function createErrorResponseSchema(errorType: string, message: string) {
   return {
     ...errorResponseSchema,
     properties: {

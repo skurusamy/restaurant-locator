@@ -167,25 +167,46 @@ This endpoint is only for local verification and is not part of the challenge it
 
 ## Developer Guide
 
-## Prerequisites
+This section is meant to help a reviewer or interviewer get the project running quickly without guessing the setup steps.
 
-You need:
+## Recommended versions
 
-- Node.js
-- npm
-- Docker Desktop
+The project was developed locally with:
 
-## Step 1. Install dependencies
+- `Node.js v22.14.0`
+- `npm 11.6.0`
+- `Docker 29.4.0`
+
+You do not need those exact versions, but using a recent Node 22+ setup will give the smoothest experience.
+
+## 1. Clone the repository
+
+```bash
+git clone <your-repository-url>
+cd restaurant-locator
+```
+
+## 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-## Step 2. Create the environment file
+## 3. Install Docker
 
-Create a `.env` file in the project root using the same values as `.env.example`.
+Docker is used only for PostgreSQL in local development.
 
-Example:
+If Docker is not installed yet, use the official Docker installation guide:
+
+- https://docs.docker.com/get-started/get-docker/
+
+After installing Docker, make sure Docker Desktop is running before continuing.
+
+## 4. Create the environment file
+
+Create a `.env` file in the project root.
+
+You can use the following values:
 
 ```env
 PORT=3000
@@ -196,31 +217,58 @@ DB_PASSWORD=postgres
 DB_NAME=restaurant_locator
 ```
 
-## Step 3. Start PostgreSQL
+These values match the PostgreSQL container defined in `docker-compose.yml`.
+
+## 5. Start PostgreSQL with Docker
 
 ```bash
 docker compose up -d
 ```
 
-This starts the PostgreSQL container.
+This starts a local PostgreSQL container named `restaurant-locator-db`.
 
-## Step 4. Seed the database
+If you want to confirm the container is running:
+
+```bash
+docker ps
+```
+
+You should see `restaurant-locator-db` in the output.
+
+## 6. Seed the database
 
 ```bash
 npm run seed
 ```
 
-This command:
+What this command does:
 
 - connects to PostgreSQL
-- initializes the schema through TypeORM if needed
-- reads restaurant data from the JSON file
+- creates the schema if needed through TypeORM
+- reads restaurant data from `data/locations_big.json`
 - validates the input records
-- upserts the restaurants into the database
+- maps the JSON fields into the database entity format
+- upserts the data in batches
 
-If PostgreSQL has just started and the seed command fails immediately, wait a few seconds and run it again.
+If PostgreSQL has only just started and the seed command fails immediately, wait a few seconds and run `npm run seed` again.
 
-## Step 5. Run the API
+## 7. Check that the data was loaded
+
+One quick way to verify the seed worked is to query the database from inside the container:
+
+```bash
+docker exec -it restaurant-locator-db psql -U postgres -d restaurant_locator -c "SELECT COUNT(*) FROM locations;"
+```
+
+If the seed succeeded, this should return a count greater than `0`.
+
+You can also run a quick sample query:
+
+```bash
+docker exec -it restaurant-locator-db psql -U postgres -d restaurant_locator -c "SELECT id, name, x, y, radius FROM locations LIMIT 5;"
+```
+
+## 8. Run the API
 
 For development:
 
@@ -228,70 +276,56 @@ For development:
 npm run dev
 ```
 
-For build + start:
+For a production-style run:
 
 ```bash
 npm run build
 npm start
 ```
 
-## Step 6. Open the API documentation
+Once the API is running, open:
 
 ```text
 http://localhost:3000/docs
 ```
 
-## Test Framework
+That Swagger page is the fastest way to explore and manually test the endpoints.
 
-The project uses:
+If helpful, a Postman collection can be added later, but Swagger should be enough to get started quickly.
 
-- `Mocha` as the test runner
-- `Chai` for assertions
-- `ts-node` so tests can run directly against TypeScript files
-
-Run tests with:
+## 9. Run the tests
 
 ```bash
 npm test
 ```
 
-The tests currently cover:
+The test suite includes:
 
-- search behavior
-- sort order
-- validation failures
-- get-by-id behavior
-- create/update behavior for the `PUT` endpoint
+- API integration tests
+- service-level unit tests
+- global error-handler tests
+
+Note: the integration tests expect PostgreSQL to be running locally.
 
 ## Seed Script
 
-The seed script is:
+The seed script lives at:
 
 ```text
 scripts/seed-locations.ts
 ```
 
-What it does:
-
-1. initializes the database connection
-2. reads the source JSON file
-3. validates coordinate and radius formats
-4. maps the API-style JSON shape into the database entity shape
-5. upserts the data in batches
-
-At the moment, the script reads from:
+At the moment it reads from:
 
 ```text
 data/locations_big.json
 ```
 
-You can switch that path if you want to seed from a different dataset.
+If needed, that input path can be changed easily.
 
 ## Project Structure
 
-Yes, it is worth including a short structure section in the README because it helps reviewers understand the codebase quickly without overexplaining it.
-
-Current structure:
+High-level structure:
 
 ```text
 src/
@@ -313,16 +347,6 @@ data/
 test/
 ```
 
-## OpenAPI / Swagger
-
-Swagger UI is available at:
-
-```text
-http://localhost:3000/docs
-```
-
-This is generated from the Fastify route schemas.
-
 ## Error Handling
 
 The API returns structured errors and proper HTTP status codes:
@@ -343,14 +367,27 @@ Example error response:
 
 ## Technical Rationale
 
-- `PostgreSQL`: I used PostgreSQL because the challenge mentions that the solution may be tested with bigger datasets. A database-backed approach is a better fit than keeping everything only in memory.
+Here is a simple summary of the main choices in this project:
 
-- `Database-side filtering and sorting`: The search endpoint performs visibility filtering and distance ordering in the data layer rather than loading all locations into memory first. This is a better starting point for larger datasets.
+| Choice | Why I used it |
+|---|---|
+| `Fastify` | It is small, fast, and easy to work with for building APIs. |
+| `TypeScript` | It helps catch mistakes earlier and makes the code easier to follow. |
+| `PostgreSQL` | The challenge mentions bigger datasets, so a real database is a safer choice than keeping everything only in memory. |
+| `TypeORM` | Used for the entity model, repository access, and query building. |
+| `Swagger` | Generated from the Fastify route schemas so the docs stay close to the API. |
+| `Mocha + Chai` | They are simple and lightweight for both API tests and unit tests. |
 
-- `Seed script`: I kept the provided JSON file as the input source and added a seed script to load it into the database. The script validates coordinates, maps the JSON fields into entity fields, and upserts records in batches so it works for both sample and larger datasets.
+Here are a few choices I want to explain briefly:
 
-- `Test framework`: I used Mocha and Chai because they are lightweight, straightforward for API testing, and work well with TypeScript through `ts-node`.
+- `Why PostgreSQL`: I wanted the search to work in a way that still makes sense if the dataset grows. PostgreSQL lets the API filter and sort data before it is returned.
 
-- `Distance calculation`: The distance logic uses standard Euclidean distance, `sqrt((x1 - x2)^2 + (y1 - y2)^2)`, which matches the challenge definition of visibility based on geometric distance.
+- `Why database filtering and sorting`: Instead of loading every restaurant into the app and checking them one by one, the database does the heavy work. That keeps the API simpler and more scalable.
 
-- `Pagination`: I added pagination to the search endpoint as an optional enhancement. The challenge mentions bigger datasets, so pagination helps avoid returning very large responses at once while preserving the required behavior of returning visible restaurants sorted by distance.
+- `Why pagination`: Pagination is not required for the basic challenge, but it helps avoid returning very large responses at once. It is a small addition that makes the search endpoint more practical.
+
+- `Why a seed script`: The challenge provides restaurant data in JSON. The seed script gives a repeatable way to load that data into PostgreSQL, validate it, and re-run the setup quickly.
+
+- `Why validation and clear errors`: I wanted invalid requests to fail in a predictable way. That makes the API easier to test, easier to debug, and nicer to use.
+
+- `Why separate test types`: I kept API tests for end-to-end behavior and added unit tests for service and error-handling logic. This makes the tests easier to understand and helps cover both real request flows and edge cases.

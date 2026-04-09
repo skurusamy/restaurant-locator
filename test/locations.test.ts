@@ -292,6 +292,18 @@ describe('Restaurant Locator API', function () {
       const body = response.json();
       expect(body.errorType).to.equal('Bad Request');
     });
+
+    it('should return 400 when limit is greater than 50', async function () {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/locations/search?x=2&y=2&page=1&limit=51',
+      });
+
+      expect(response.statusCode).to.equal(400);
+
+      const body = response.json();
+      expect(body.errorType).to.equal('Bad Request');
+    });
   });
   describe('GET /locations/:id', function () {
     it('should return location details by id', async function () {
@@ -547,6 +559,28 @@ describe('Restaurant Locator API', function () {
       const response = await app.inject({
         method: 'PUT',
         url: '/locations/99999999-9999-9999-9999-999999999999',
+        payload,
+      });
+
+      expect(response.statusCode).to.equal(400);
+
+      const body = response.json();
+      expect(body.errorType).to.equal('Bad Request');
+    });
+
+    it('should return 400 when a required body field is missing', async function () {
+      const payload = {
+        id: '12121212-1212-1212-1212-121212121212',
+        type: 'Restaurant',
+        image: 'https://tinyurl.com',
+        'opening-hours': '9:00AM-10:00PM',
+        coordinates: 'x=5,y=6',
+        radius: 3,
+      };
+
+      const response = await app.inject({
+        method: 'PUT',
+        url: '/locations/12121212-1212-1212-1212-121212121212',
         payload,
       });
 
