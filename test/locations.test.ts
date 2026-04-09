@@ -432,6 +432,50 @@ describe('Restaurant Locator API', function () {
       expect(getResponse.json().name).to.equal('Mantra Restaurant Updated');
     });
 
+    it('should keep existing optional fields when they are omitted during an update', async function () {
+      const payload = {
+        id: '22222222-2222-2222-2222-222222222222',
+        name: 'Goji Updated',
+        coordinates: 'x=4,y=4',
+        radius: 4,
+      };
+
+      const response = await app.inject({
+        method: 'PUT',
+        url: '/locations/22222222-2222-2222-2222-222222222222',
+        payload,
+      });
+
+      expect(response.statusCode).to.equal(200);
+
+      const body = response.json();
+
+      expect(body).to.deep.equal({
+        id: '22222222-2222-2222-2222-222222222222',
+        name: 'Goji Updated',
+        type: 'Restaurant',
+        image: 'https://tinyurl.com',
+        coordinates: 'x=4,y=4',
+        radius: 4,
+        'opening-hours': '10:00AM-11:00PM',
+      });
+
+      const getResponse = await app.inject({
+        method: 'GET',
+        url: '/locations/22222222-2222-2222-2222-222222222222',
+      });
+
+      expect(getResponse.statusCode).to.equal(200);
+      expect(getResponse.json()).to.deep.equal({
+        id: '22222222-2222-2222-2222-222222222222',
+        name: 'Goji Updated',
+        type: 'Restaurant',
+        image: 'https://tinyurl.com',
+        coordinates: 'x=4,y=4',
+        'opening-hours': '10:00AM-11:00PM',
+      });
+    });
+
     it('should return 400 when path id and body id do not match', async function () {
       const payload = {
         id: '55555555-5555-5555-5555-555555555555',

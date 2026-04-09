@@ -136,6 +136,8 @@ This is the nice-to-have endpoint from the challenge.
 
 For this optional endpoint, the example request body in the challenge was treated as the intended request shape. Based on that, `id`, `name`, `coordinates`, and `radius` are required, while `type`, `image`, and `opening-hours` are optional.
 
+If an existing restaurant is updated and an optional field is omitted, the stored value for that field is kept.
+
 ```text
 PUT /locations/51e1545c-8b65-4d83-82f9-7fcad4a23111
 ```
