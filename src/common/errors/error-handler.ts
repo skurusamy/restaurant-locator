@@ -51,6 +51,8 @@ function formatValidationMessage(error: any): string {
       return `${fieldLabel} is required.`;
     case 'minimum':
       return `${fieldLabel} must be at least ${validationError.params?.limit}.`;
+    case 'minLength':
+      return `${fieldLabel} must not be empty.`;
     case 'maximum':
       if (fieldName === 'x' || fieldName === 'y' || fieldName === 'page') {
         return `${fieldLabel} must be within supported range (0 to ${validationError.params?.limit}).`;
@@ -89,7 +91,7 @@ export function registerGlobalErrorHandler(app: FastifyInstance): void {
       statusCode === 400
         ? formatValidationMessage(error)
         : error instanceof Error
-          ? error.message
+          ? error.message || 'Internal Server Error'
           : 'Internal Server Error';
 
     const errorType =

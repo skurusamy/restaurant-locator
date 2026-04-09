@@ -105,6 +105,40 @@ describe('Global Error Handler', function () {
     await app.close();
   });
 
+  it('should format minLength validation errors', async function () {
+    const app = Fastify({ logger: false });
+    registerGlobalErrorHandler(app);
+
+    app.get('/min-length', async () => {
+      throw {
+        statusCode: 400,
+        validationContext: 'body',
+        validation: [
+          {
+            keyword: 'minLength',
+            instancePath: '/name',
+            params: { limit: 1 },
+          },
+        ],
+      };
+    });
+
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/min-length',
+    });
+
+    expect(response.statusCode).to.equal(400);
+    expect(response.json()).to.deep.equal({
+      errorType: 'Bad Request',
+      message: "Request body field 'name' must not be empty.",
+    });
+
+    await app.close();
+  });
+
   it('should format coordinates pattern validation errors', async function () {
     const app = Fastify({ logger: false });
     registerGlobalErrorHandler(app);
@@ -158,6 +192,30 @@ describe('Global Error Handler', function () {
     expect(response.json()).to.deep.equal({
       errorType: 'Internal Server Error',
       message: 'Something broke',
+    });
+
+    await app.close();
+  });
+
+  it('should fall back to a default message when an internal error message is empty', async function () {
+    const app = Fastify({ logger: false });
+    registerGlobalErrorHandler(app);
+
+    app.get('/empty-error', async () => {
+      throw new Error('');
+    });
+
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/empty-error',
+    });
+
+    expect(response.statusCode).to.equal(500);
+    expect(response.json()).to.deep.equal({
+      errorType: 'Internal Server Error',
+      message: 'Internal Server Error',
     });
 
     await app.close();

@@ -241,6 +241,12 @@ You should see `restaurant-locator-db` in the output.
 
 Note: the Docker init script creates both `restaurant_locator` and `restaurant_locator_test` on first setup. If you already have an existing Postgres volume, you may need to recreate it with `docker compose down -v` before bringing the container up again.
 
+To verify both development and test databases were created, run:
+
+```bash
+docker exec -it restaurant-locator-db psql -U postgres -l
+```
+
 ## 6. Seed the database
 
 ```bash
@@ -259,6 +265,15 @@ What this command does:
 The seed script currently reads from data/locations.json. If needed, this can be changed in scripts/seed-locations.ts to point to a different dataset.
 
 If PostgreSQL has only just started and the seed command fails immediately, wait a few seconds and run `npm run seed` again.
+
+The seed script uses upsert, so it does not clear existing data automatically.
+
+PostgreSQL data is stored in a Docker volume. If you want a completely fresh database, run:
+
+```bash
+docker compose down -v
+docker compose up -d
+```
 
 An optional helper script is also available at `scripts/generate-test-dataset.py` if you want to generate a synthetic dataset for manual testing or pagination checks.
 

@@ -613,6 +613,7 @@ describe('Restaurant Locator API', function () {
 
       const body = response.json();
       expect(body.errorType).to.equal('Bad Request');
+      expect(body.message).to.equal("Request body field 'name' must not be empty.");
     });
 
     it('should return 400 when image is not a valid URI', async function () {
