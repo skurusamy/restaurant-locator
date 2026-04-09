@@ -271,6 +271,18 @@ describe('Restaurant Locator API', function () {
       expect(response.statusCode).to.equal(400);
     });
 
+    it('should return 400 when an unexpected query parameter is provided', async function () {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/locations/search?x=1&y=1&foo=bar',
+      });
+
+      expect(response.statusCode).to.equal(400);
+
+      const body = response.json();
+      expect(body.errorType).to.equal('Bad Request');
+    });
+
     it('should return 400 for negative x', async function () {
       const response = await app.inject({
         method: 'GET',
@@ -685,6 +697,27 @@ describe('Restaurant Locator API', function () {
       const response = await app.inject({
         method: 'PUT',
         url: '/locations/12121212-1212-1212-1212-121212121212',
+        payload,
+      });
+
+      expect(response.statusCode).to.equal(400);
+
+      const body = response.json();
+      expect(body.errorType).to.equal('Bad Request');
+    });
+
+    it('should return 400 when an unexpected body field is provided', async function () {
+      const payload = {
+        id: '12222222-1212-1212-1212-121212121212',
+        name: 'Unexpected Field Place',
+        coordinates: 'x=5,y=6',
+        radius: 3,
+        extra: 'not-allowed',
+      };
+
+      const response = await app.inject({
+        method: 'PUT',
+        url: '/locations/12222222-1212-1212-1212-121212121212',
         payload,
       });
 

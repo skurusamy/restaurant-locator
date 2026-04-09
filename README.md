@@ -64,7 +64,7 @@ This endpoint returns:
 - the visible restaurants
 - each restaurant's distance from the user
 
-The restaurants are sorted by distance in ascending order.
+The restaurants are sorted by distance in ascending order. If two restaurants have the same distance, they are sorted by `id`.
 
 Example response:
 
@@ -360,6 +360,12 @@ http://localhost:3000/docs
 
 ```bash
 npm test
+```
+
+Before running `npm test`, make sure PostgreSQL is running locally with:
+
+```bash
+docker compose up -d
 ```
 
 The test suite includes:
