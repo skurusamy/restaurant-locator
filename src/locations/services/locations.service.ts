@@ -1,3 +1,4 @@
+import { MAX_INT_32 } from '../../common/constants/constants';
 import { toDetailsResponse, toSearchItem, toUpsertResponse } from '../mappers/locations.mapper';
 import { LocationsRepository } from '../repositories/locations.repository';
 import {
@@ -25,7 +26,6 @@ export class LocationsService {
 
     const x = Number(match[1]);
     const y = Number(match[2]);
-    const MAX_INT = 2147483647;
 
     if (!Number.isSafeInteger(x) || !Number.isSafeInteger(y)) {
       throw Object.assign(
@@ -36,9 +36,9 @@ export class LocationsService {
       );
     }
 
-    if (x > MAX_INT || y > MAX_INT) {
+    if (x > MAX_INT_32 || y > MAX_INT_32) {
       throw Object.assign(
-        new Error(`Coordinates must be within supported integer range (0 to ${MAX_INT}).`),
+        new Error(`Coordinates must be within supported integer range (0 to ${MAX_INT_32}).`),
         {
           statusCode: 400,
         }
