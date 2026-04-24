@@ -1,4 +1,4 @@
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { SelectQueryBuilder } from 'typeorm';
 import { AppDataSource } from '../../db/data-source';
 import { LocationEntity } from '../../db/entities/locations/locations.entity';
 
@@ -15,62 +15,76 @@ export interface SearchLocationsResult {
   total: number;
 }
 
-export class LocationsRepository {
-  private readonly repository: Repository<LocationEntity>;
+export interface UpsertLocationInput {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+  radius: number;
+  type?: string;
+  image?: string;
+  openingHours?: string;
+}
 
-  constructor() {
-    this.repository = AppDataSource.getRepository(LocationEntity);
-  }
+function getLocationsRepository() {
+  return AppDataSource.getRepository(LocationEntity);
+}
 
-  public async findById(id: string): Promise<LocationEntity | null> {
-    return this.repository.findOne({
-      where: { id },
-    });
-  }
+function buildSearchByDistanceQuery(
+  userX: number,
+  userY: number
+): SelectQueryBuilder<LocationEntity> {
+  const distanceSquaredExpr = '(POWER(loc.x - :userX, 2) + POWER(loc.y - :userY, 2))';
 
-  private buildSearchByDistanceQuery(userX: number, userY: number): SelectQueryBuilder<LocationEntity> {
-    const distanceSquaredExpr = '(POWER(loc.x - :userX, 2) + POWER(loc.y - :userY, 2))';
+  return getLocationsRepository()
+    .createQueryBuilder('loc')
+    .where(`${distanceSquaredExpr} <= POWER(loc.radius, 2)`)
+    .andWhere(':userX BETWEEN loc.x - loc.radius AND loc.x + loc.radius')
+    .andWhere(':userY BETWEEN loc.y - loc.radius AND loc.y + loc.radius')
+    .setParameters({ userX, userY });
+}
 
-    return this.repository
-      .createQueryBuilder('loc')
-      .where(`${distanceSquaredExpr} <= POWER(loc.radius, 2)`)
-      .andWhere(':userX BETWEEN loc.x - loc.radius AND loc.x + loc.radius')
-      .andWhere(':userY BETWEEN loc.y - loc.radius AND loc.y + loc.radius')
-      .setParameters({ userX, userY });
-  }
+export async function findLocationById(id: string): Promise<LocationEntity | null> {
+  return getLocationsRepository().findOne({
+    where: { id },
+  });
+}
 
-  public async searchByDistance(userX: number, userY: number, safePage = 1, safeLimit = 10): Promise<SearchLocationsResult> {
-    const offset = (safePage - 1) * safeLimit;
-    const distanceExpr = 'SQRT(POWER(loc.x - :userX, 2) + POWER(loc.y - :userY, 2))';
+export async function searchLocationsByDistance(
+  userX: number,
+  userY: number,
+  page = 1,
+  limit = 10
+): Promise<SearchLocationsResult> {
+  const offset = (page - 1) * limit;
+  const distanceExpr = 'SQRT(POWER(loc.x - :userX, 2) + POWER(loc.y - :userY, 2))';
 
-    const baseQuery = this.buildSearchByDistanceQuery(userX, userY);
-    const total = await baseQuery.getCount();
+  const total = await buildSearchByDistanceQuery(userX, userY).getCount();
 
-    const rows = await this.buildSearchByDistanceQuery(userX, userY)
-      .select('loc.id', 'id')
-      .addSelect('loc.name', 'name')
-      .addSelect('loc.x', 'x')
-      .addSelect('loc.y', 'y')
-      .addSelect(distanceExpr, 'distance')
-      .orderBy('distance', 'ASC')
-      .addOrderBy('loc.id', 'ASC')
-      .offset(offset)
-      .limit(safeLimit)
-      .getRawMany<SearchLocationRow>();
+  const rows = await buildSearchByDistanceQuery(userX, userY)
+    .select('loc.id', 'id')
+    .addSelect('loc.name', 'name')
+    .addSelect('loc.x', 'x')
+    .addSelect('loc.y', 'y')
+    .addSelect(distanceExpr, 'distance')
+    .orderBy('distance', 'ASC')
+    .addOrderBy('loc.id', 'ASC')
+    .offset(offset)
+    .limit(limit)
+    .getRawMany<SearchLocationRow>();
 
-    return {
-      rows: rows.map((row) => ({
-        id: row.id,
-        name: row.name,
-        x: Number(row.x),
-        y: Number(row.y),
-        distance: Number(row.distance),
-      })),
-      total,
-    };
-  }
+  return {
+    rows: rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      x: Number(row.x),
+      y: Number(row.y),
+      distance: Number(row.distance),
+    })),
+    total,
+  };
+}
 
-  public async upsert(location: Partial<LocationEntity>): Promise<void> {
-    await this.repository.upsert(location, ['id']);
-  }
+export async function upsertLocation(location: UpsertLocationInput): Promise<void> {
+  await getLocationsRepository().upsert(location, ['id']);
 }

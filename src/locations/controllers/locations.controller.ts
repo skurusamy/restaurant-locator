@@ -1,5 +1,10 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { LocationsService } from '../services/locations.service';
+import {
+  getLocationDetails,
+  LocationsStore,
+  saveLocation,
+  searchLocations,
+} from '../services/locations.service';
 import {
   SearchLocationsQuery,
   UpsertLocationRequest,
@@ -9,37 +14,43 @@ interface GetLocationByIdParams {
   id: string;
 }
 
-export class LocationsController {
-  constructor(private readonly locationsService: LocationsService) {}
+export function buildLocationsHandlers(store?: LocationsStore) {
+  return {
+    async searchLocations(
+      request: FastifyRequest<{ Querystring: SearchLocationsQuery }>,
+      reply: FastifyReply
+    ) {
+      const { x, y, page = 1, limit = 10 } = request.query;
+      const result = await searchLocations(x, y, page, limit, store);
 
-  public async searchLocations(request: FastifyRequest<{ Querystring: SearchLocationsQuery }>, reply: FastifyReply) {
-    const { x, y, page = 1, limit = 10 } = request.query;
+      return reply.status(200).send(result);
+    },
 
-    const result = await this.locationsService.searchByDistance(Number(x), Number(y), Number(page), Number(limit));
+    async getLocationById(
+      request: FastifyRequest<{ Params: GetLocationByIdParams }>,
+      reply: FastifyReply
+    ) {
+      const { id } = request.params;
+      const location = await getLocationDetails(id, store);
 
-    return reply.status(200).send(result);
-  }
+      if (!location) {
+        return reply.status(404).send({
+          errorType: 'Not Found',
+          message: 'Location not found.',
+        });
+      }
 
-  public async getLocationById(request: FastifyRequest<{ Params: GetLocationByIdParams }>, reply: FastifyReply) {
-    const { id } = request.params;
+      return reply.status(200).send(location);
+    },
 
-    const location = await this.locationsService.getLocationById(id);
+    async upsertLocation(
+      request: FastifyRequest<{ Params: { id: string }; Body: UpsertLocationRequest }>,
+      reply: FastifyReply
+    ) {
+      const { id } = request.params;
+      const result = await saveLocation(id, request.body, store);
 
-    if (!location) {
-      return reply.status(404).send({
-        errorType: 'Not Found',
-        message: 'Location not found.',
-      });
-    }
-
-    return reply.status(200).send(location);
-  }
-
-  public async upsertLocation(request: FastifyRequest<{ Params: { id: string }; Body: UpsertLocationRequest; }>, reply: FastifyReply) {
-    const { id } = request.params;
-    const payload = request.body;
-
-    const result = await this.locationsService.upsertLocation(id, payload);
-    return reply.status(200).send(result);
-  }
+      return reply.status(200).send(result);
+    },
+  };
 }
